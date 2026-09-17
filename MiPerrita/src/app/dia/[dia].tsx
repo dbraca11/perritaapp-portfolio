@@ -4,7 +4,7 @@ import {
   ActivityIndicator, Alert, Animated,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { collection, doc, setDoc, onSnapshot, query, where, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc, onSnapshot, query, where, serverTimestamp } from 'firebase/firestore';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import NetInfo from '@react-native-community/netinfo';
@@ -127,17 +127,33 @@ export default function DiaScreen() {
     }).start(() => setUndoVisible(null));
 
     const { comidaKey, estadoAnterior } = undoVisible;
-    if (estadoAnterior === undefined) return;
+    const docId = `${dia}_${comidaKey}`;
+
+    // Actualizar UI inmediatamente
+    setEstados((prev) => {
+      const nuevo = { ...prev };
+      if (estadoAnterior === undefined) {
+        delete nuevo[comidaKey];
+      } else {
+        nuevo[comidaKey] = estadoAnterior;
+      }
+      return nuevo;
+    });
 
     try {
-      const docId = `${dia}_${comidaKey}`;
-      await setDoc(doc(db, 'comidas', docId), {
-        dia,
-        comida: comidaKey,
-        comio: estadoAnterior,
-        registradoPor: username || user.uid,
-        timestamp: serverTimestamp(),
-      });
+      if (estadoAnterior === undefined) {
+        // Si no había estado anterior, eliminar el documento
+        await deleteDoc(doc(db, 'comidas', docId));
+      } else {
+        // Restaurar el estado anterior
+        await setDoc(doc(db, 'comidas', docId), {
+          dia,
+          comida: comidaKey,
+          comio: estadoAnterior,
+          registradoPor: username || user.uid,
+          timestamp: serverTimestamp(),
+        });
+      }
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     } catch (error) {
       console.error('Error al deshacer:', error);

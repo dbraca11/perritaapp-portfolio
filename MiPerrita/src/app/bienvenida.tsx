@@ -4,9 +4,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../context/ThemeContext';
 import { fonts } from '../../context/typography';
+import { marcarBienvenidaVista } from '../../context/bienvenida';
 
 const PASOS = [
   {
@@ -35,13 +35,13 @@ export default function BienvenidaScreen() {
     if (paso < PASOS.length - 1) {
       setPaso(paso + 1);
     } else {
-      await AsyncStorage.setItem('bienvenida_vista', 'true');
+      await marcarBienvenidaVista();
       router.replace('/');
     }
   };
 
   const saltar = async () => {
-    await AsyncStorage.setItem('bienvenida_vista', 'true');
+    await marcarBienvenidaVista();
     router.replace('/');
   };
 

@@ -6,6 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
+import { suscribirBienvenida } from '../../context/bienvenida';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -16,10 +17,20 @@ function RootNavigator() {
   const router = useRouter();
   const [bienvenidaVista, setBienvenidaVista] = useState<boolean | null>(null);
 
+  const cargarBienvenida = async () => {
+    const value = await AsyncStorage.getItem('bienvenida_vista');
+    setBienvenidaVista(value === 'true');
+  };
+
   useEffect(() => {
-    AsyncStorage.getItem('bienvenida_vista').then((value) => {
-      setBienvenidaVista(value === 'true');
+    cargarBienvenida();
+
+    // Escuchar cuando el usuario marque la bienvenida como vista
+    const unsubscribe = suscribirBienvenida(() => {
+      setBienvenidaVista(true);
     });
+
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -28,7 +39,7 @@ function RootNavigator() {
     const enAuthGroup = segments[0] === 'login' || segments[0] === 'registro';
     const enBienvenida = segments[0] === 'bienvenida';
 
-    if (!bienvenidaVista) {
+    if (!bienvenidaVista && !enBienvenida) {
       router.replace('/bienvenida');
       return;
     }

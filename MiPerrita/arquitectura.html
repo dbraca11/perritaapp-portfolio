@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>PerritaApp - Arquitectura</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #1A0F14 0%, #2D1B22 100%);
+    color: #FFE4EC;
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    font-size: 42px;
+    color: #F06292;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .subtitle {
+    color: #C9A0AE;
+    font-size: 16px;
+    margin-bottom: 50px;
+    text-align: center;
+  }
+
+  .container {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .layer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .layer-title {
+    font-size: 13px;
+    color: #C9A0AE;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .boxes {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .box {
+    background: rgba(45, 27, 34, 0.8);
+    border: 2px solid #E91E63;
+    border-radius: 16px;
+    padding: 24px 28px;
+    text-align: center;
+    min-width: 180px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(233, 30, 99, 0.2);
+  }
+
+  .box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(233, 30, 99, 0.4);
+    border-color: #F06292;
+  }
+
+  .box-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+
+  .box-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFF;
+    margin-bottom: 6px;
+  }
+
+  .box-desc {
+    font-size: 12px;
+    color: #C9A0AE;
+    line-height: 1.4;
+  }
+
+  .box.green { border-color: #4CAF50; }
+  .box.green:hover { box-shadow: 0 8px 30px rgba(76, 175, 80, 0.4); }
+  
+  .box.blue { border-color: #2196F3; }
+  .box.blue:hover { box-shadow: 0 8px 30px rgba(33, 150, 243, 0.4); }
+  
+  .box.purple { border-color: #9C27B0; }
+  .box.purple:hover { box-shadow: 0 8px 30px rgba(156, 39, 176, 0.4); }
+  
+  .box.orange { border-color: #FF9800; }
+  .box.orange:hover { box-shadow: 0 8px 30px rgba(255, 152, 0, 0.4); }
+
+  .arrow {
+    color: #F06292;
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .arrows-row {
+    display: flex;
+    gap: 100px;
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  .arrow-down {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, #E91E63, transparent);
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .arrow-down::after {
+    content: '▼';
+    color: #E91E63;
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+  }
+
+  .arrow-up {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to top, #E91E63, transparent);
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .arrow-up::after {
+    content: '▲';
+    color: #E91E63;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: #E91E63;
+    color: #FFF;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  .badge.green { background: #4CAF50; }
+  .badge.blue { background: #2196F3; }
+
+  .stats {
+    margin-top: 50px;
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat {
+    background: rgba(45, 27, 34, 0.8);
+    border: 1px solid rgba(233, 30, 99, 0.3);
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+    min-width: 140px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #F06292;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #C9A0AE;
+    margin-top: 4px;
+  }
+
+  .footer {
+    margin-top: 60px;
+    color: #C9A0AE;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<h1>🐶 PerritaApp</h1>
+<p class="subtitle">Arquitectura del sistema · App móvil colaborativa</p>
+
+<div class="container">
+
+  <!-- CAPA 1: USUARIOS -->
+  <div class="layer">
+    <div class="layer-title">Usuarios</div>
+    <div class="boxes">
+      <div class="box">
+        <div class="box-icon">👨‍💻</div>
+        <div class="box-title">Darwin</div>
+        <div class="box-desc">Dueño de la app</div>
+      </div>
+      <div class="box">
+        <div class="box-icon">👩</div>
+        <div class="box-title">Mamá</div>
+        <div class="box-desc">Usuario</div>
+      </div>
+      <div class="box">
+        <div class="box-icon">👨</div>
+        <div class="box-title">Papá</div>
+        <div class="box-desc">Usuario</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-down"></div>
+
+  <!-- CAPA 2: FRONTEND -->
+  <div class="layer">
+    <div class="layer-title">Frontend · App Móvil</div>
+    <div class="boxes">
+      <div class="box blue">
+        <div class="box-icon">📱</div>
+        <div class="box-title">React Native + Expo</div>
+        <div class="box-desc">Android + iOS con un solo código</div>
+        <span class="badge blue">SDK 57</span>
+      </div>
+      <div class="box blue">
+        <div class="box-icon">🧭</div>
+        <div class="box-title">Expo Router</div>
+        <div class="box-desc">Navegación entre pantallas</div>
+      </div>
+      <div class="box blue">
+        <div class="box-icon">🎨</div>
+        <div class="box-title">UI Personalizada</div>
+        <div class="box-desc">Poppins · Ionicons · Modo oscuro</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-down"></div>
+
+  <!-- CAPA 3: BACKEND -->
+  <div class="layer">
+    <div class="layer-title">Backend · Firebase (Plan Spark - Gratis)</div>
+    <div class="boxes">
+      <div class="box green">
+        <div class="box-icon">🔐</div>
+        <div class="box-title">Firebase Auth</div>
+        <div class="box-desc">Login con usuario y contraseña</div>
+        <span class="badge green">JWT Tokens</span>
+      </div>
+      <div class="box green">
+        <div class="box-icon">🗄️</div>
+        <div class="box-title">Cloud Firestore</div>
+        <div class="box-desc">Datos compartidos en tiempo real</div>
+        <span class="badge green">NoSQL</span>
+      </div>
+      <div class="box green">
+        <div class="box-icon">🔔</div>
+        <div class="box-title">FCM V1</div>
+        <div class="box-desc">Notificaciones push</div>
+        <span class="badge green">Cloud Messaging</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-down"></div>
+
+  <!-- CAPA 4: SEGURIDAD -->
+  <div class="layer">
+    <div class="layer-title">Seguridad · Múltiples capas</div>
+    <div class="boxes">
+      <div class="box orange">
+        <div class="box-icon">🛡️</div>
+        <div class="box-title">Firestore Rules</div>
+        <div class="box-desc">Solo usuarios autenticados</div>
+      </div>
+      <div class="box orange">
+        <div class="box-icon">🔑</div>
+        <div class="box-title">API Key Restringida</div>
+        <div class="box-desc">Vinculada al SHA-1 de la app</div>
+      </div>
+      <div class="box orange">
+        <div class="box-icon">👆</div>
+        <div class="box-title">Biometría</div>
+        <div class="box-desc">Huella cifrada con SecureStore</div>
+      </div>
+      <div class="box orange">
+        <div class="box-icon">🔒</div>
+        <div class="box-title">EAS Secrets</div>
+        <div class="box-desc">Credenciales cifradas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow-down"></div>
+
+  <!-- CAPA 5: DEVOPS -->
+  <div class="layer">
+    <div class="layer-title">DevOps · Desarrollo y Despliegue</div>
+    <div class="boxes">
+      <div class="box purple">
+        <div class="box-icon">📦</div>
+        <div class="box-title">GitHub</div>
+        <div class="box-desc">Código en la nube (repo privado)</div>
+      </div>
+      <div class="box purple">
+        <div class="box-icon">💻</div>
+        <div class="box-title">Codespaces</div>
+        <div class="box-desc">Entorno de desarrollo</div>
+      </div>
+      <div class="box purple">
+        <div class="box-icon">🚀</div>
+        <div class="box-title">EAS Build</div>
+        <div class="box-desc">Compila el APK en la nube</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ESTADÍSTICAS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-value">3</div>
+    <div class="stat-label">Usuarios</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">7</div>
+    <div class="stat-label">Días de historial</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">3</div>
+    <div class="stat-label">Comidas por día</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">100%</div>
+    <div class="stat-label">Gratis</div>
+  </div>
+</div>
+
+<div class="footer">
+  <strong>PerritaApp v1.0.0</strong> · Desarrollada por Darwin Braca<br>
+  React Native · Expo · Firebase · EAS Build · GitHub
+</div>
+
+</body>
+</html>
