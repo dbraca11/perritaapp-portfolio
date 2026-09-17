@@ -1,0 +1,11 @@
+"android": {
+  "package": "com.dbraca.perritaapp",
+  "googleServicesFile": "./google-services.json",
+  "adaptiveIcon": {
+    "backgroundColor": "#FFF0F5",
+    "foregroundImage": "./assets/images/icon.png",
+    "backgroundImage": "./assets/images/icon.png",
+    "monochromeImage": "./assets/images/android-icon-monochrome.png"
+  },
+  "predictiveBackGestureEnabled": false
+},
