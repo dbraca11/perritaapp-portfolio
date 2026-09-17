@@ -58,7 +58,6 @@ export default function LoginScreen() {
   };
 
   const handleHuella = async () => {
-    // 1. Pedir huella
     const result = await LocalAuthentication.authenticateAsync({
       promptMessage: 'Autentícate para entrar',
       fallbackLabel: 'Usar contraseña',
@@ -67,7 +66,6 @@ export default function LoginScreen() {
 
     if (!result.success) return;
 
-    // 2. Recuperar credenciales cifradas
     const savedUsername = await SecureStore.getItemAsync('biometria_username');
     const savedPassword = await SecureStore.getItemAsync('biometria_password');
 
@@ -79,7 +77,6 @@ export default function LoginScreen() {
       return;
     }
 
-    // 3. Iniciar sesión automáticamente
     setCargando(true);
     try {
       await login(savedUsername, savedPassword);
@@ -90,6 +87,14 @@ export default function LoginScreen() {
     } finally {
       setCargando(false);
     }
+  };
+
+  const handleRecuperar = () => {
+    Alert.alert(
+      'Recuperar contraseña',
+      'Por seguridad, pídele al administrador de la app que resetee tu contraseña. Solo se puede hacer desde la consola de Firebase.',
+      [{ text: 'Entendido' }]
+    );
   };
 
   return (
@@ -169,6 +174,12 @@ export default function LoginScreen() {
             </TouchableOpacity>
           )}
 
+          <TouchableOpacity onPress={handleRecuperar} style={styles.linkButton}>
+            <Text style={[styles.linkText, { color: colors.subtext, fontFamily: fonts.regular }]}>
+              ¿Olvidaste tu contraseña?
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => router.push('/registro')} style={styles.linkButton}>
             <Text style={[styles.linkText, { color: colors.primary, fontFamily: fonts.semiBold }]}>
               ¿No tienes cuenta? Crear una
@@ -183,7 +194,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   keyboard: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', padding: 24 },
+  content: { flex: 1, justifyContent: 'center', padding: 24, maxWidth: 500, alignSelf: 'center', width: '100%' },
   logoImage: {
     width: 140,
     height: 140,
@@ -225,6 +236,6 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   bioText: { fontSize: 16 },
-  linkButton: { marginTop: 20, alignItems: 'center' },
+  linkButton: { marginTop: 16, alignItems: 'center' },
   linkText: { fontSize: 15 },
 });

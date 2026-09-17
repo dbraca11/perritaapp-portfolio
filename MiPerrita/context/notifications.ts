@@ -7,7 +7,8 @@ import { db } from './firebase';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
   }),
@@ -114,4 +115,4 @@ export async function enviarNotificacionAOtros(
   } catch (error) {
     console.error('❌ Error al enviar notificación:', error);
   }
-}S
+}

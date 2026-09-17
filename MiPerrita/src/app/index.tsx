@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { fonts } from '../../context/typography';
@@ -10,6 +11,7 @@ const DIAS_SEMANA = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viern
 
 export default function HomeScreen() {
   const { isDark, toggleTheme, colors } = useTheme();
+  const { username } = useAuth();
   const router = useRouter();
 
   const hoy = new Date();
@@ -21,9 +23,14 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.primary, fontFamily: fonts.bold }]}>
-            🐶 PerritaApp
-          </Text>
+          <View>
+            <Text style={[styles.title, { color: colors.primary, fontFamily: fonts.bold }]}>
+              🐶 PerritaApp
+            </Text>
+            <Text style={[styles.greeting, { color: colors.subtext, fontFamily: fonts.regular }]}>
+              Hola, {username}
+            </Text>
+          </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity
               onPress={toggleTheme}
@@ -111,7 +118,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: 20 },
+  scroll: { padding: 20, maxWidth: 600, alignSelf: 'center', width: '100%' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -119,6 +126,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: { fontSize: 28 },
+  greeting: { fontSize: 14, marginTop: 2 },
   themeButton: {
     width: 50,
     height: 50,
@@ -155,9 +163,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
-  todayGradient: {
-    padding: 22,
-  },
+  todayGradient: { padding: 22 },
   todayHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

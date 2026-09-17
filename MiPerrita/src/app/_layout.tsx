@@ -3,8 +3,9 @@ import { ThemeProvider, useTheme } from '../../context/ThemeContext';
 import { AuthProvider, useAuth } from '../../context/AuthContext';
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import { View, ActivityIndicator } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -13,21 +14,47 @@ function RootNavigator() {
   const { user, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const [bienvenidaVista, setBienvenidaVista] = useState<boolean | null>(null);
 
   useEffect(() => {
-    if (loading || !isReady) return;
+    AsyncStorage.getItem('bienvenida_vista').then((value) => {
+      setBienvenidaVista(value === 'true');
+    });
+  }, []);
+
+  useEffect(() => {
+    if (loading || !isReady || bienvenidaVista === null) return;
 
     const enAuthGroup = segments[0] === 'login' || segments[0] === 'registro';
+    const enBienvenida = segments[0] === 'bienvenida';
+
+    if (!bienvenidaVista) {
+      router.replace('/bienvenida');
+      return;
+    }
+
+    if (enBienvenida) return;
 
     if (!user && !enAuthGroup) {
       router.replace('/login');
     } else if (user && enAuthGroup) {
       router.replace('/');
     }
-  }, [user, loading, isReady, segments]);
+  }, [user, loading, isReady, segments, bienvenidaVista]);
 
-  if (!isReady || loading) {
-    return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+  if (!isReady || loading || bienvenidaVista === null) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   return (

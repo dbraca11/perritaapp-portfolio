@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-  ActivityIndicator,
+  View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView,
+  KeyboardAvoidingView, Platform, Alert, ActivityIndicator, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -60,6 +52,14 @@ export default function RegistroScreen() {
     }
   };
 
+  const handleRecuperar = () => {
+    Alert.alert(
+      'Recuperar contraseña',
+      'Por seguridad, pídele al administrador de la app que resetee tu contraseña. Solo se puede hacer desde la consola de Firebase.',
+      [{ text: 'Entendido' }]
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView
@@ -67,7 +67,11 @@ export default function RegistroScreen() {
         style={styles.keyboard}
       >
         <View style={styles.content}>
-          <Text style={styles.logo}>🐶</Text>
+          <Image
+            source={require('../../assets/images/pelua.jpg')}
+            style={styles.logoImage}
+            resizeMode="cover"
+          />
           <Text style={[styles.title, { color: colors.primary, fontFamily: fonts.bold }]}>
             Crear cuenta
           </Text>
@@ -125,6 +129,12 @@ export default function RegistroScreen() {
             )}
           </TouchableOpacity>
 
+          <TouchableOpacity onPress={handleRecuperar} style={styles.linkButton}>
+            <Text style={[styles.linkText, { color: colors.subtext, fontFamily: fonts.regular }]}>
+              ¿Olvidaste tu contraseña?
+            </Text>
+          </TouchableOpacity>
+
           <TouchableOpacity onPress={() => router.back()} style={styles.linkButton}>
             <Text style={[styles.linkText, { color: colors.primary, fontFamily: fonts.semiBold }]}>
               Ya tengo cuenta. Iniciar sesión
@@ -139,8 +149,16 @@ export default function RegistroScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   keyboard: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', padding: 24 },
-  logo: { fontSize: 72, textAlign: 'center', marginBottom: 8 },
+  content: { flex: 1, justifyContent: 'center', padding: 24, maxWidth: 500, alignSelf: 'center', width: '100%' },
+  logoImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignSelf: 'center',
+    marginBottom: 16,
+    borderWidth: 4,
+    borderColor: '#E91E63',
+  },
   title: { fontSize: 28, textAlign: 'center', marginBottom: 4 },
   subtitle: { fontSize: 15, textAlign: 'center', marginBottom: 32 },
   inputWrapper: {
@@ -162,6 +180,6 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   mainButtonText: { color: '#FFF', fontSize: 17 },
-  linkButton: { marginTop: 20, alignItems: 'center' },
+  linkButton: { marginTop: 16, alignItems: 'center' },
   linkText: { fontSize: 15 },
 });

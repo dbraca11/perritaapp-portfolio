@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView,
-  ActivityIndicator, Alert,
+  ActivityIndicator, Alert, Animated,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { collection, doc, setDoc, onSnapshot, query, where, serverTimestamp } from 'firebase/firestore';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
+import NetInfo from '@react-native-community/netinfo';
 import { useTheme } from '../../../context/ThemeContext';
 import { useAuth } from '../../../context/AuthContext';
 import { db } from '../../../context/firebase';
@@ -27,14 +28,14 @@ export default function DiaScreen() {
   const [estados, setEstados] = useState<Record<string, boolean>>({});
   const [cargando, setCargando] = useState(true);
   const [enviando, setEnviando] = useState<string | null>(null);
+  const [undoVisible, setUndoVisible] = useState<{ comidaKey: string; estadoAnterior: boolean | undefined } | null>(null);
+  const slideAnim = useRef(new Animated.Value(100)).current;
+  const undoTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!dia) return;
 
-    const q = query(
-      collection(db, 'comidas'),
-      where('dia', '==', dia)
-    );
+    const q = query(collection(db, 'comidas'), where('dia', '==', dia));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const datos: Record<string, boolean> = {};
@@ -49,12 +50,27 @@ export default function DiaScreen() {
     return () => unsubscribe();
   }, [dia]);
 
+  useEffect(() => {
+    if (undoVisible) {
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [undoVisible]);
+
   const registrar = async (comidaKey: string, comio: boolean) => {
     if (!user || enviando) return;
-
-    // Evitar doble tap: no hacer nada si el estado ya es el mismo
     if (estados[comidaKey] === comio) return;
 
+    const netInfo = await NetInfo.fetch();
+    if (!netInfo.isConnected) {
+      Alert.alert('Sin conexión', 'Revisa tu conexión a internet e intenta de nuevo.');
+      return;
+    }
+
+    const estadoAnterior = estados[comidaKey];
     setEnviando(comidaKey);
 
     if (comio) {
@@ -77,15 +93,55 @@ export default function DiaScreen() {
 
       const comida = COMIDAS.find((c) => c.key === comidaKey);
       if (comio && comida && username) {
-        Alert.alert('✅ Registrado', comida.notif);
         await enviarNotificacionAOtros(username, '🐶 PerritaApp', comida.notif);
       }
+
+      setUndoVisible({ comidaKey, estadoAnterior });
+      slideAnim.setValue(100);
+
+      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+      undoTimeoutRef.current = setTimeout(() => {
+        Animated.timing(slideAnim, {
+          toValue: 100,
+          duration: 200,
+          useNativeDriver: true,
+        }).start(() => setUndoVisible(null));
+      }, 5000);
     } catch (error) {
       console.error('Error al guardar:', error);
       Alert.alert('Error', 'No se pudo guardar. Revisa tu conexión.');
-      setEstados((prev) => ({ ...prev, [comidaKey]: !comio }));
+      setEstados((prev) => ({ ...prev, [comidaKey]: estadoAnterior ?? !comio }));
     } finally {
       setEnviando(null);
+    }
+  };
+
+  const deshacer = async () => {
+    if (!undoVisible || !user) return;
+
+    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    Animated.timing(slideAnim, {
+      toValue: 100,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => setUndoVisible(null));
+
+    const { comidaKey, estadoAnterior } = undoVisible;
+    if (estadoAnterior === undefined) return;
+
+    try {
+      const docId = `${dia}_${comidaKey}`;
+      await setDoc(doc(db, 'comidas', docId), {
+        dia,
+        comida: comidaKey,
+        comio: estadoAnterior,
+        registradoPor: username || user.uid,
+        timestamp: serverTimestamp(),
+      });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    } catch (error) {
+      console.error('Error al deshacer:', error);
+      Alert.alert('Error', 'No se pudo deshacer. Intenta de nuevo.');
     }
   };
 
@@ -186,13 +242,35 @@ export default function DiaScreen() {
           })
         )}
       </ScrollView>
+
+      {undoVisible && (
+        <Animated.View
+          style={[
+            styles.undoToast,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <Text style={[styles.undoText, { color: colors.text, fontFamily: fonts.regular }]}>
+            Registro guardado
+          </Text>
+          <TouchableOpacity onPress={deshacer}>
+            <Text style={[styles.undoButton, { color: colors.primary, fontFamily: fonts.bold }]}>
+              Deshacer
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: 20 },
+  scroll: { padding: 20, maxWidth: 600, alignSelf: 'center', width: '100%' },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -224,4 +302,23 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   buttonLabel: { fontSize: 14 },
-});S
+  undoToast: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  undoText: { fontSize: 15 },
+  undoButton: { fontSize: 15 },
+});

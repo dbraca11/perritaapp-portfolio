@@ -35,7 +35,6 @@ export default function AjustesScreen() {
 
   const toggleBiometria = async (valor: boolean) => {
     if (valor) {
-      // 1. Pedir huella
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: 'Confirma tu identidad para activar la huella',
         fallbackLabel: 'Usar contraseña',
@@ -43,11 +42,9 @@ export default function AjustesScreen() {
       });
       if (!result.success) return;
 
-      // 2. Abrir modal para pedir la contraseña
       setPasswordTemp('');
       setModalVisible(true);
     } else {
-      // Desactivar
       await SecureStore.deleteItemAsync('biometria_password');
       await SecureStore.deleteItemAsync('biometria_username');
       await AsyncStorage.setItem('biometria_activa', 'false');
@@ -180,6 +177,23 @@ export default function AjustesScreen() {
           </View>
         </View>
 
+        <Text style={[styles.sectionLabel, { color: colors.subtext, fontFamily: fonts.regular }]}>
+          Acerca de
+        </Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={styles.row}>
+            <Ionicons name="information-circle-outline" size={24} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.rowLabel, { color: colors.text, fontFamily: fonts.regular }]}>
+                PerritaApp v1.0.0
+              </Text>
+              <Text style={[styles.rowSub, { color: colors.subtext, fontFamily: fonts.regular }]}>
+                Desarrollada por Darwin Braca usando React Native, Expo, Firebase y EAS Build. Con cariño para nuestra perrita. 💕
+              </Text>
+            </View>
+          </View>
+        </View>
+
         <TouchableOpacity
           style={[styles.logoutButton, { borderColor: '#E53935' }]}
           onPress={cerrarSesion}
@@ -247,7 +261,7 @@ export default function AjustesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { padding: 20 },
+  scroll: { padding: 20, maxWidth: 600, alignSelf: 'center', width: '100%' },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -269,7 +283,7 @@ const styles = StyleSheet.create({
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   rowLabel: { fontSize: 16 },
-  rowSub: { fontSize: 12, marginTop: 2 },
+  rowSub: { fontSize: 12, marginTop: 2, lineHeight: 16 },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -282,7 +296,7 @@ const styles = StyleSheet.create({
   },
   logoutText: { color: '#E53935', fontSize: 16 },
 
-  // Estilos del modal
+  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -292,6 +306,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
+    maxWidth: 500,
     borderRadius: 20,
     padding: 24,
     elevation: 10,

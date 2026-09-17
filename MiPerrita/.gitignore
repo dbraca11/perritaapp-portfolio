@@ -43,7 +43,7 @@ example
 /android
 
 # Firebase credentials (NO subir al repo público)
-google-services.json
+#google-services.json
 GoogleService-Info.plist
 *firebase-adminsdk*.json
 @dbraca__perritaapp.jksS
