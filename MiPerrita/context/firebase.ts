@@ -3,13 +3,15 @@ import { initializeAuth, getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// ⚠️ Configuración de ejemplo para el portafolio.
+// En producción, estas credenciales vienen de variables de entorno (.env).
 const firebaseConfig = {
-  apiKey: "AIzaSyBRba8lu6K8YRCA-50otIau6EJ_LVJWVSw",
-  authDomain: "perritaapp2.firebaseapp.com",
-  projectId: "perritaapp2",
-  storageBucket: "perritaapp2.firebasestorage.app",
-  messagingSenderId: "222127548783",
-  appId: "1:222127548783:web:ae79ef980d5cdc4e50e09a"
+  apiKey: "TU_API_KEY_AQUI",
+  authDomain: "tu-proyecto.firebaseapp.com",
+  projectId: "tu-proyecto",
+  storageBucket: "tu-proyecto.firebasestorage.app",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:xxxxxxxxxxxxxxxx"
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
