@@ -42,6 +42,21 @@ Aplicación desarrollada para uso familiar que permite a varias personas registr
 
 ---
 
+## 📸 Capturas de pantalla
+
+| Login | Menú principal | Registro de comidas | Opciones |
+|:---:|:---:|:---:|:---:|
+| <img src="login.png" width="200"/> | <img src="menu_principal.png" width="200"/> | <img src="3_comidas.png" width="200"/> | <img src="opciones.png" width="200"/> |
+| Autenticación segura con Firebase Auth | Pantalla de inicio | Registro colaborativo | Ajustes y configuración |
+
+## 🎨 Arquitectura y Stack Tecnológico
+
+Visualización interactiva de la arquitectura de la aplicación (React Native + Expo + Firebase):
+
+👉 **[Ver diagrama de arquitectura](https://dbraca11.github.io/perritaapp-portfolio/arquitectura.html)**
+
+---
+
 ## 🏗️ Arquitectura
 
 ```
